@@ -1,6 +1,6 @@
 import { OrderBy } from "../paginate.index";
 
-export class PaginateConfig<T> {
+export class PaginateConfig {
     limit: number;
     limitMax: number;
     orderBy?: OrderBy;

@@ -1,8 +1,8 @@
 import { IsNumber, IsObject } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { OrderBy, OrderByClause, Where, WhereClause } from "../types/paginate.types";
+import { OrderBy, OrderByClause, PaginateQueryInterface, Where, WhereClause } from "../types/paginate.types";
 
-export class PaginateQuery {
+export class PaginateQuery implements PaginateQueryInterface {
     @IsNumber()
     @ApiProperty({
         name: "page",

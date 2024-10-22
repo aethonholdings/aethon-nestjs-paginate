@@ -12,8 +12,8 @@ export class Paginated<T> {
             totalItems: 100,
             currentPage: 1,
             totalPages: 10,
-            orderBy: [{ "name": "ASC" }],
-            where: [{ "groupId": "12" }]
+            orderBy: [{ name: "ASC" }],
+            where: [{ groupId: "12" }]
         }
     })
     meta: Meta;
@@ -21,11 +21,13 @@ export class Paginated<T> {
         name: "data",
         type: Array,
         description: "The paginated data set",
-        example: [{
-            id: 1,
-            name: "John Doe",
-            email: "john@foo.org"
-        }]
+        example: [
+            {
+                id: 1,
+                name: "John Doe",
+                email: "john@foo.org"
+            }
+        ]
     })
     data: T[];
 

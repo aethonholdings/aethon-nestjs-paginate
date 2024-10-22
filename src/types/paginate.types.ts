@@ -19,4 +19,11 @@ export type Links = {
     current: string;
     next?: string;
     last?: string;
+};
+
+export interface PaginateQueryInterface {
+    page?: number;
+    limit?: number;
+    orderBy?: OrderBy;
+    where?: Where;
 }

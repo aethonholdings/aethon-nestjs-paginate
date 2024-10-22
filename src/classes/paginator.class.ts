@@ -1,13 +1,6 @@
 import { Repository } from "typeorm";
-import {
-    Paginated,
-    PaginateConfig,
-    PaginateQuery,
-    WhereClause,
-    OrderByClause,
-    OrderBy,
-    Where
-} from "../paginate.index";
+import { Paginated, PaginateConfig, WhereClause, OrderByClause, OrderBy, Where } from "../paginate.index";
+import { PaginateQuery } from "./paginate-query.class";
 
 type PaginationParameters = {
     totalItems: number;
@@ -24,12 +17,12 @@ type PaginationParameters = {
 // SORT FOR ARRAY NOT WORKING YET
 // TEST THAT THE PAGE COUNTS WORK
 
-export class Paginator<T> {
-    private _config: PaginateConfig<T>;
+export class Paginator {
+    private _config: PaginateConfig;
     private _query: PaginateQuery;
     private _path: string;
 
-    constructor(config: PaginateConfig<T>, query: PaginateQuery, path: string) {
+    constructor(config: PaginateConfig, query: PaginateQuery, path: string) {
         this._config = config;
         this._query = query;
         this._path = path;
@@ -48,7 +41,10 @@ export class Paginator<T> {
                     relations: []
                 };
                 this._query.where?.forEach((whereClause: WhereClause) => {
-                    findOptions.where = { ...findOptions.where, [whereClause[0]]: whereClause[1] };
+                    findOptions.where = {
+                        ...findOptions.where,
+                        [whereClause[0]]: whereClause[1]
+                    };
                 });
                 const queryBuilder = (source as Repository<T>).createQueryBuilder();
                 this._query.orderBy?.forEach((orderBy: OrderByClause) => {
@@ -78,7 +74,7 @@ export class Paginator<T> {
                         })
                         .then((data) => {
                             return data.filter((item) => {
-                                for (let whereClause of this._query.where) {
+                                for (const whereClause of this._query.where) {
                                     if (item[whereClause[0]] != whereClause[1]) return false;
                                 }
                                 return true;
@@ -89,7 +85,7 @@ export class Paginator<T> {
                             return data
                                 .sort((a, b) => {
                                     let sort: number = 0;
-                                    for (let orderByClause of this._query.orderBy) {
+                                    for (const orderByClause of this._query.orderBy) {
                                         sort =
                                             orderByClause[1] === "ASC"
                                                 ? sort ||
