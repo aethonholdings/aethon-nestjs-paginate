@@ -1,5 +1,7 @@
 import { Repository } from "typeorm";
-import { Paginated, PaginateConfig, WhereClause, OrderByClause, OrderBy, Where } from "../paginate.index";
+import { WhereClause, OrderByClause, OrderBy, Where } from "src/types/paginate.types";
+import { PaginateConfig } from "./paginate-config.class";
+import { Paginated } from "src/classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
 
 type PaginationParameters = {
@@ -12,10 +14,6 @@ type PaginationParameters = {
     orderBy: OrderBy;
     where: Where;
 };
-
-// NEXT AND LAST LINKS NOT WORKING YET
-// SORT FOR ARRAY NOT WORKING YET
-// TEST THAT THE PAGE COUNTS WORK
 
 export class Paginator {
     private _config: PaginateConfig;
@@ -70,34 +68,14 @@ export class Paginator {
                 if (source instanceof Promise) {
                     result = source
                         .then((data) => {
-                            return data;
+                            return this._query.where ? this._where(data) : data;
                         })
                         .then((data) => {
-                            return data.filter((item) => {
-                                for (const whereClause of this._query.where) {
-                                    if (item[whereClause[0]] != whereClause[1]) return false;
-                                }
-                                return true;
-                            });
+                            return this._query.orderBy ? this._orderBy(data) : data;
                         })
                         .then((data) => {
                             paginationParams = this._getPaginationParams(data.length);
-                            return data
-                                .sort((a, b) => {
-                                    let sort: number = 0;
-                                    for (const orderByClause of this._query.orderBy) {
-                                        sort =
-                                            orderByClause[1] === "ASC"
-                                                ? sort ||
-                                                  a[orderByClause[0]] - b[orderByClause[0]] ||
-                                                  a[orderByClause[0]].localeCompare(b[orderByClause[0]])
-                                                : sort ||
-                                                  b[orderByClause[0]] - a[orderByClause[0]] ||
-                                                  b[orderByClause[0]].localeCompare(a[orderByClause[0]]);
-                                    }
-                                    return sort;
-                                })
-                                .slice(paginationParams.startOffset, paginationParams.endOffset);
+                            return data.slice(paginationParams.startOffset, paginationParams.endOffset);
                         });
                 }
             }
@@ -117,17 +95,20 @@ export class Paginator {
 
     private _package<T>(data: T[], paginationParams: PaginationParameters): Paginated<T> {
         let append: string = "";
-        console.log(this._query.orderBy);
-        append = append + (this._query.orderBy.length ? `&orderBy=${JSON.stringify(this._query.orderBy)}` : "");
-        append = append + (this._query.where.length ? `&where=${JSON.stringify(this._query.where)}` : "");
+        append =
+            append +
+            (this._query.orderBy && this._query.orderBy.length
+                ? `&orderBy=${JSON.stringify(this._query.orderBy)}`
+                : "");
+        append =
+            append +
+            (this._query.where && this._query.where.length ? `&where=${JSON.stringify(this._query.where)}` : "");
         const response: Paginated<T> = {
             meta: {
                 itemsPerPage: paginationParams.itemsPerPage,
                 totalItems: paginationParams.totalItems,
                 currentPage: paginationParams.currentPage,
-                totalPages: paginationParams.totalPages,
-                orderBy: paginationParams.orderBy,
-                where: paginationParams.where
+                totalPages: paginationParams.totalPages
             },
             data: data,
             links: {
@@ -136,6 +117,8 @@ export class Paginator {
                 last: `${this._path}?page=${paginationParams.totalPages}&limit=${paginationParams.itemsPerPage}${append}`
             }
         };
+        if(this._query.orderBy) response.meta.orderBy = this._query.orderBy;
+        if(this._query.where) response.meta.where = this._query.where;
         paginationParams.currentPage > 1
             ? (response.links.previous = `${this._path}?page=${paginationParams.currentPage - 1}&limit=${paginationParams.itemsPerPage}${append}`)
             : null;
@@ -153,7 +136,7 @@ export class Paginator {
         } else {
             itemsPerPage = this._config.limit;
         }
-        const totalPages = Math.ceil(totalItems / itemsPerPage) + 1;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
         const currentPage = Math.max(Math.min(this._query.page || 1, totalPages), 1);
         const startOffset = (currentPage - 1) * itemsPerPage;
         const endOffset = Math.min(startOffset + itemsPerPage, totalItems);
@@ -168,5 +151,34 @@ export class Paginator {
             startOffset: startOffset,
             endOffset: endOffset
         };
+    }
+
+    private _orderBy<T>(data: T[]): T[] {
+        return data.sort((a, b) => {
+            let sort: number = 0;
+            for (const orderByClause of this._query.orderBy) {
+                if (a[orderByClause[0]] instanceof String) {
+                    sort =
+                        orderByClause[1] === "ASC"
+                            ? sort || a[orderByClause[0]].localeCompare(b[orderByClause[0]])
+                            : sort || b[orderByClause[0]]?.localeCompare(a[orderByClause[0]]);
+                } else {
+                    sort =
+                        orderByClause[1] === "ASC"
+                            ? sort || a[orderByClause[0]] - b[orderByClause[0]]
+                            : sort || b[orderByClause[0]] - a[orderByClause[0]];
+                }
+            }
+            return sort;
+        });
+    }
+
+    private _where<T>(data: T[]): T[] {
+        return data.filter((item) => {
+            for (const whereClause of this._query.where) {
+                if (item[whereClause[0]] != whereClause[1]) return false;
+            }
+            return true;
+        });
     }
 }
