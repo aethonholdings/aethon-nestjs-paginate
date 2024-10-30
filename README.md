@@ -15,8 +15,8 @@ export class Paginated<T> {
         totalItems: number;
         currentPage: number;
         totalPages: number;
-        orderBy?: OrderBy;
-        where?: Where;
+        orderBy?: OrderBy;      // [[string, "ASC" | "DESC"]]
+        where?: Where;          //  [[string, string]], with the first string being a field name and the second one the value it should be equal to
     };
     data: T[];
     links: {
@@ -43,7 +43,7 @@ In the required NestJS controller endpoint, use the `@GetPaginator` decorator to
 async index(
         @GetPaginator(testDataConfig) paginator: Paginator): Promise<Paginated<TestEntity>> {
         return this.testService.findAll(paginator);
-    }
+}
 ```
 
 ### Request format
