@@ -14,9 +14,10 @@
     "keywords": [
         "NestJS"
     ],
+    "repository": "github:aethonholdings/aethon-nestjs-paginate",
     "author": "Konstantinos Dimitriou",
     "license": "MIT",
-    "dependencies": {
+    "peerDependencies": {
         "@nestjs/common": "^10.3.10",
         "@nestjs/swagger": "^7.4.0",
         "@nestjs/typeorm": "^10.0.2",

@@ -11,7 +11,6 @@ export type TestType = {
 
 @Entity()
 export class TestEntity implements TestType {
-    @Column()
     @PrimaryColumn()
     id: number;
 

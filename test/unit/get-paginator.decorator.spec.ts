@@ -22,15 +22,15 @@ import { PaginateConfig } from "src/classes/paginate-config.class";
 type Sources = "promise" | "repository" | "array";
 
 describe("Test GetPaginator decorator", () => {
-    let config: PaginateConfig = paginationConfig;
-    let testData: TestData = getTestEntityData();
+    const config: PaginateConfig = paginationConfig;
+    const testData: TestData = getTestEntityData();
     let repository: Repository<TestEntity>;
     let dataSource: DataSource;
     let entities: TestEntity[] | Promise<TestEntity[]> | Repository<TestEntity>;
     const sources: Sources[] = ["array", "promise", "repository"];
     testData.data = shuffle(testData.data);
 
-    for (let source of sources) {
+    for (const source of sources) {
         beforeEach(async () => {
             switch (source) {
                 case "promise":
@@ -145,7 +145,7 @@ describe("Test GetPaginator decorator", () => {
         });
     }
 
-    for (let query in testQueries) {
+    for (const query in testQueries) {
         it(`produces the same output for repository as array sources: ${query}`, async () => {
             const module: TestingModule = await Test.createTestingModule({
                 imports: [TypeOrmModule.forRoot(getDbConfig()), TypeOrmModule.forFeature([TestEntity])]
@@ -161,7 +161,7 @@ describe("Test GetPaginator decorator", () => {
     }
 
     // test the validation of the query object with some invalid queries
-    for (let key in testQueriesInvalid) {
+    for (const key in testQueriesInvalid) {
         const query = testQueriesInvalid[key];
         it(`should throw an error for invalid query::${key}`, () => {
             expect(() => getPaginator(query)).toThrow();

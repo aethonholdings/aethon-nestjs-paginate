@@ -1,6 +1,6 @@
-import { GetPaginator } from "./decorators/get-paginator.decorator";
-import { Paginator } from "./classes/paginator.class";
-
-export { GetPaginator };
-export { Paginator };
+export { GetPaginator } from "./decorators/get-paginator.decorator";
+export { Paginated } from "./classes/paginated.class";
+export { Paginator } from "./classes/paginator.class";
+export { PaginateQuery } from "./classes/paginate-query.class";
+export { PaginateConfig } from "./classes/paginate-config.class";
 export { OrderBy, OrderByClause, Where, WhereClause, Meta, Links } from "./types/paginate.types";

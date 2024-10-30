@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Links, Meta } from "src/types/paginate.types"; 
+import { Links, Meta } from "../types/paginate.types";
 
 export class Paginated<T> {
     @ApiProperty({

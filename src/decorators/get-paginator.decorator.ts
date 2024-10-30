@@ -1,10 +1,10 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { OrderBy, OrderByClause, Where, WhereClause } from "src/types/paginate.types";
-import { PaginateConfig } from "src/classes/paginate-config.class";
-import { Paginator } from "src/classes/paginator.class";
+import { OrderBy, OrderByClause, Where, WhereClause } from "../types/paginate.types";
+import { PaginateConfig } from "../classes/paginate-config.class";
+import { Paginator } from "../classes/paginator.class";
+import { PaginatorError } from "../classes/paginator-error.class";
+import { PaginateQuery } from "../classes/paginate-query.class";
 import { Request } from "express";
-import { PaginatorError } from "src/classes/paginator-error.class";
-import { PaginateQuery } from "src/classes/paginate-query.class";
 
 export const GetPaginator = createParamDecorator(
     (config: PaginateConfig, ctx: ExecutionContext): Paginator => getPaginatorClass(config, ctx)
@@ -43,7 +43,9 @@ function validateOrderByClause(orderByClause: string[]): OrderByClause {
     if (orderByClause.length !== 2)
         throw new PaginatorError("Invalid OrderByClause; should have exactly 2 string elements");
     if (!(orderByClause[1] === "ASC" || orderByClause[1] === "DESC"))
-        throw new PaginatorError("Invalid query object; second element of each OrderByClause should be 'ASC' or 'DESC'");
+        throw new PaginatorError(
+            "Invalid query object; second element of each OrderByClause should be 'ASC' or 'DESC'"
+        );
     return orderByClause as OrderByClause;
 }
 
@@ -55,8 +57,7 @@ function validateWhere(where: string[][]): Where {
     return where as Where;
 }
 
-
-function validateWhereClause(whereClause: string[]): WhereClause   {
+function validateWhereClause(whereClause: string[]): WhereClause {
     if (whereClause.length !== 2)
         throw new PaginatorError("Invalid WhereClause; should have exactly 2 string elements");
     return whereClause as WhereClause;

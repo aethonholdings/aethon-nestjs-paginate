@@ -1,4 +1,4 @@
-import { OrderBy } from "src/types/paginate.types";
+import { OrderBy } from "../types/paginate.types";
 
 export class PaginateConfig {
     limit: number;

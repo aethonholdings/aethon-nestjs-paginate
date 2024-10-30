@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
-import { WhereClause, OrderByClause, OrderBy, Where } from "src/types/paginate.types";
+import { WhereClause, OrderByClause, OrderBy, Where } from "../types/paginate.types";
 import { PaginateConfig } from "./paginate-config.class";
-import { Paginated } from "src/classes/paginated.class";
+import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
 
 type PaginationParameters = {
