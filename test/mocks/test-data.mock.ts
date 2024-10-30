@@ -1,5 +1,5 @@
 import { PaginateConfig } from "src/classes/paginate-config.class";
-import { TestEntity } from "./test.entity";
+import { TestEntity } from "../entities/test.entity";
 
 export type TestData = { groupIds: number[]; countPerGroup: number; data: TestEntity[] };
 export const testPath: string = "https://foo/test";

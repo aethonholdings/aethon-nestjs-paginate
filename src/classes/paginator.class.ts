@@ -56,32 +56,35 @@ export class Paginator {
                         return queryBuilder
                             .where(findOptions.where)
                             .skip(paginationParams.startOffset)
-                            .take(paginationParams.endOffset)
+                            .take(paginationParams.itemsPerPage)
                             .getMany();
                     });
             } else {
                 // if the source is not a Repository, check if it is not a promise and set it up as a Promise
                 if (!(source instanceof Promise)) {
-                    source = Promise.resolve(source as T[]);
+                    source = Promise.resolve(source);
                 }
                 // the source is now a promise; chain the promise to get the total items and the paginated data
-                if (source instanceof Promise) {
-                    result = source
-                        .then((data) => {
-                            return this._query.where ? this._where(data) : data;
-                        })
-                        .then((data) => {
-                            return this._query.orderBy ? this._orderBy(data) : data;
-                        })
-                        .then((data) => {
-                            paginationParams = this._getPaginationParams(data.length);
-                            return data.slice(paginationParams.startOffset, paginationParams.endOffset);
-                        });
-                }
+                result = source
+                    .then((data) => {
+                        return this._query.where ? this._where(data) : data;
+                    })
+                    // order by id ASC, if present, because by default TypeORM orders by id
+                    // this step ensures that array-based data source results match the repository-based results
+                    .then((data) => {
+                        return data.sort((a, b) => a["id"] - b["id"]);
+                    })
+                    .then((data) => {
+                        return this._query.orderBy ? this._orderBy(data) : data;
+                    })
+                    .then((data) => {
+                        paginationParams = this._getPaginationParams(data.length);
+                        return data.slice(paginationParams.startOffset, paginationParams.endOffset + 1);
+                    });
             }
         }
         return result.then((data) => {
-            return this._package(data, paginationParams);
+            return this._package<T>(data, paginationParams);
         });
     }
 
@@ -91,6 +94,10 @@ export class Paginator {
 
     getPath(): string {
         return this._path;
+    }
+
+    getConfig(): PaginateConfig {
+        return this._config;
     }
 
     private _package<T>(data: T[], paginationParams: PaginationParameters): Paginated<T> {
@@ -110,15 +117,15 @@ export class Paginator {
                 currentPage: paginationParams.currentPage,
                 totalPages: paginationParams.totalPages
             },
-            data: data,
+            data: data.map((obj) => obj as T),
             links: {
                 first: `${this._path}?page=1&limit=${paginationParams.itemsPerPage}${append}`,
                 current: `${this._path}?page=${paginationParams.currentPage}&limit=${paginationParams.itemsPerPage}${append}`,
                 last: `${this._path}?page=${paginationParams.totalPages}&limit=${paginationParams.itemsPerPage}${append}`
             }
         };
-        if(this._query.orderBy) response.meta.orderBy = this._query.orderBy;
-        if(this._query.where) response.meta.where = this._query.where;
+        if (this._query.orderBy) response.meta.orderBy = this._query.orderBy;
+        if (this._query.where) response.meta.where = this._query.where;
         paginationParams.currentPage > 1
             ? (response.links.previous = `${this._path}?page=${paginationParams.currentPage - 1}&limit=${paginationParams.itemsPerPage}${append}`)
             : null;
@@ -130,16 +137,12 @@ export class Paginator {
 
     private _getPaginationParams(totalItems: number): PaginationParameters {
         let itemsPerPage: number = this._query.limit || this._config.limit;
-        if (this._query.limit) {
-            if (this._query.limit < 1) itemsPerPage = this._config.limit;
-            if (this._query.limit > this._config.limitMax) itemsPerPage = this._config.limitMax;
-        } else {
-            itemsPerPage = this._config.limit;
-        }
+        if (this._query.limit < 1) itemsPerPage = this._config.limit;
+        if (this._query.limit > this._config.limitMax) itemsPerPage = this._config.limitMax;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const currentPage = Math.max(Math.min(this._query.page || 1, totalPages), 1);
         const startOffset = (currentPage - 1) * itemsPerPage;
-        const endOffset = Math.min(startOffset + itemsPerPage, totalItems);
+        const endOffset = Math.min(startOffset + itemsPerPage, totalItems) - 1;
 
         return {
             itemsPerPage: itemsPerPage,

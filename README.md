@@ -2,9 +2,32 @@
 
 ## Description
 
-Yet another NestJS pagination add-in, composed of a decorator and associated classes. Inspired by [nestjs-paginate](https://github.com/ppetzold/nestjs-paginate), but with narrower features and simpler code.
+(Yet another) NestJS pagination add-in, composed of a decorator and associated classes. Inspired by [nestjs-paginate](https://github.com/ppetzold/nestjs-paginate), but with narrower features and simpler code.
 
 Also allows pagination of arbitrary data held in an array or any `Promise` returning an array, not just from a database. This is useful when returning paginated data from a cache. We use this functionality in applications with significant client-side analytics that require low latency over large datasets.
+
+## Pagination schema
+
+```
+export class Paginated<T> {
+    meta: {
+        itemsPerPage: number;
+        totalItems: number;
+        currentPage: number;
+        totalPages: number;
+        orderBy?: OrderBy;
+        where?: Where;
+    };
+    data: T[];
+    links: {
+        first?: string;
+        previous?: string;
+        current: string;
+        next?: string;
+        last?: string;
+    };
+}
+```
 
 ## Example usage
 
@@ -30,7 +53,7 @@ export interface PaginateQueryInterface {
 }
 ```
 
-In your corresponding service, pass the relevant TypeORM repository to the `Paginator.run()` method:
+If paginating entities from a TypeORM-connected database, pass the relevant TypeORM repository to the `Paginator.run()` method in your corresponding NestJS service:
 
 ```
 async findAll(paginator: Paginator): Promise<Paginated<TestEntity>> {
@@ -45,16 +68,14 @@ For any generic type `T` (in this case, `TestEntity`), `source` in the above exa
 
 ## Dependencies/ extensions included
 
-1. [TypeORM](https://typeorm.io/) + mySQL
+1. [TypeORM](https://typeorm.io/)
 
 ## Features set up
 
--   XXX
+-   Where queries, equality only (e.g. WHERE groupId=2) with multiple AND clauses
+-   Nested OrderBy queries
 
 **To do**
 
--   XXX
-
-## Technical notes
-
-### API response schema
+-   Where queries for greater than, greater or equal than etc.
+-   OR clauses in Where

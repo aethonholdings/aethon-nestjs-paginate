@@ -1,4 +1,4 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 export type TestType = {
     id: number;
@@ -12,6 +12,7 @@ export type TestType = {
 @Entity()
 export class TestEntity implements TestType {
     @Column()
+    @PrimaryColumn()
     id: number;
 
     @Column()

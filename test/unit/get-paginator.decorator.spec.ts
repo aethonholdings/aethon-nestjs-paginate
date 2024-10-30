@@ -7,38 +7,50 @@ import {
     testPath,
     testQueries,
     testQueriesInvalid
-} from "../test-data/test-data";
+} from "../mocks/test-data.mock";
 import { ExecutionContext } from "@nestjs/common";
-import { TestEntity } from "test/test-data/test.entity";
+import { TestEntity } from "test/entities/test.entity";
+import { getDbConfig } from "test/mocks/data-source.mock";
+import { Test, TestingModule } from "@nestjs/testing";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { DataSource, Repository } from "typeorm";
+import { PaginateConfig } from "src/classes/paginate-config.class";
 
 // NEXT AND LAST LINKS NOT WORKING YET
 // TEST THAT THE PAGE COUNTS WORK
 
-describe("Test GetPaginator decorator", () => {
-    const config = paginationConfig;
-    let testData: TestData;
-    let entities: TestEntity[] | Promise<TestEntity[]>;
-    const sources = ["array", "promise", "repository"];
+type Sources = "promise" | "repository" | "array";
 
-    for (let key in testQueries) {
-        const query = testQueries[key];
-        it(`initialises a paginator::${key}`, () => {
-            const paginator: Paginator = getPaginator(query);
-            expect(paginator).toBeDefined();
-        });
-    }
+describe("Test GetPaginator decorator", () => {
+    let config: PaginateConfig = paginationConfig;
+    let testData: TestData = getTestEntityData();
+    let repository: Repository<TestEntity>;
+    let dataSource: DataSource;
+    let entities: TestEntity[] | Promise<TestEntity[]> | Repository<TestEntity>;
+    const sources: Sources[] = ["array", "promise", "repository"];
+    testData.data = shuffle(testData.data);
 
     for (let source of sources) {
         beforeEach(async () => {
-            if (source === "array" || source === "promise") {
-                testData = getTestEntityData();
-                source === "array"
-                    ? (entities = shuffle(testData.data))
-                    : (entities = Promise.resolve(testData.data).then((data) => shuffle(data)));
+            switch (source) {
+                case "promise":
+                    entities = Promise.resolve(testData.data);
+                    break;
+                case "repository":
+                    const module: TestingModule = await Test.createTestingModule({
+                        imports: [TypeOrmModule.forRoot(getDbConfig()), TypeOrmModule.forFeature([TestEntity])]
+                    }).compile();
+                    dataSource = module.get<DataSource>(DataSource);
+                    repository = dataSource.getRepository(TestEntity);
+                    await repository.save(testData.data);
+                    entities = repository;
+                    break;
+                default:
+                    entities = testData.data;
             }
         });
 
-        it(`returns paginated data::findAll::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:findAll`, async () => {
             const query = testQueries.findAll;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -51,7 +63,7 @@ describe("Test GetPaginator decorator", () => {
             expect(paginated.meta.currentPage).toBe(query.page);
         });
 
-        it(`returns paginated data::findAllWhere::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:findAllWhere`, async () => {
             const query = testQueries.findAllWhere;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -65,7 +77,7 @@ describe("Test GetPaginator decorator", () => {
             expect(paginated.meta.currentPage).toBe(query.page);
         });
 
-        it(`returns paginated data::findAllOrderByStringDESC::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:findAllOrderByStringDESC`, async () => {
             const query = testQueries.findAllOrderByStringDESC;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -75,7 +87,7 @@ describe("Test GetPaginator decorator", () => {
             }
         });
 
-        it(`returns paginated data::findAllWhereOrderByNumberDESC::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:findAllWhereOrderByNumberDESC`, async () => {
             const query = testQueries.findAllWhereOrderByNumberDESC;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -85,7 +97,7 @@ describe("Test GetPaginator decorator", () => {
             }
         });
 
-        it(`returns paginated data::findAllWhereOrderByGroupASCAndIdDESC::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:findAllWhereOrderByGroupASCAndIdDESC`, async () => {
             const query = testQueries.findAllWhereOrderByGroupASCAndIdDESC;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -97,7 +109,7 @@ describe("Test GetPaginator decorator", () => {
             }
         });
 
-        it(`returns paginated data::empty::source:${source}`, async () => {
+        it(`source:${source}; returns paginated data:empty`, async () => {
             const query = testQueries.empty;
             const paginator: Paginator = getPaginator(query);
             const paginated = await paginator.run<TestEntity>(entities);
@@ -106,6 +118,45 @@ describe("Test GetPaginator decorator", () => {
             expect(paginated.data.length).not.toBe(0);
             expect(paginated.meta.itemsPerPage).toBe(config.limit);
             expect(paginated.meta.currentPage).toBe(1);
+        });
+
+        it("source:${source}; cycles through pages correctly:findAll", async () => {
+            let elementCounter: number = 0;
+            const query = testQueries.findAll;
+            query.page = 1;
+            const paginator: Paginator = getPaginator(query);
+            const paginated = await paginator.run<TestEntity>(entities);
+            expect(paginated.meta.currentPage).toBe(query.page);
+            expect(paginated.meta.itemsPerPage).toBeLessThanOrEqual(paginated.data.length);
+            elementCounter += paginated.data.length;
+            for (let i = paginated.meta.currentPage + 1; i <= paginated.meta.totalPages; i++) {
+                query.page = i;
+                const paginator: Paginator = getPaginator(query);
+                const paginated = await paginator.run<TestEntity>(entities);
+                expect(paginated.meta.currentPage).toBe(i);
+                expect(paginated.data.length).toBeLessThanOrEqual(paginated.meta.itemsPerPage);
+                elementCounter += paginated.data.length;
+            }
+            expect(elementCounter).toBe(testData.data.length);
+        });
+
+        afterEach(async () => {
+            if (source === "repository") await dataSource.destroy();
+        });
+    }
+
+    for (let query in testQueries) {
+        it(`produces the same output for repository as array sources: ${query}`, async () => {
+            const module: TestingModule = await Test.createTestingModule({
+                imports: [TypeOrmModule.forRoot(getDbConfig()), TypeOrmModule.forFeature([TestEntity])]
+            }).compile();
+            dataSource = module.get<DataSource>(DataSource);
+            repository = dataSource.getRepository(TestEntity);
+            await repository.save(testData.data);
+            const paginator: Paginator = getPaginator(query);
+            const paginatedRepository = await paginator.run<TestEntity>(repository);
+            const paginatedArray = await paginator.run<TestEntity>(testData.data);
+            expect(paginatedRepository).toEqual(paginatedArray);
         });
     }
 
