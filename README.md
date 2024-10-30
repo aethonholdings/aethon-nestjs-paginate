@@ -31,7 +31,11 @@ export class Paginated<T> {
 
 ## Example usage
 
+### Installation
+
 `npm install -s aethon-nestjs-paginate`
+
+### Intercepting a request with `@GetPaginator`
 
 In the required NestJS controller endpoint, use the `@GetPaginator` decorator to return an instance of the `Paginator` class that will hold the pagination query request parameters and anticipate a dataset to perform the requested query over, as follows:
 
@@ -41,6 +45,8 @@ async index(
         return this.testService.findAll(paginator);
     }
 ```
+
+### Request format
 
 The inbound request must conform to the `PaginateQueryInterface` interface.
 
@@ -53,6 +59,8 @@ export interface PaginateQueryInterface {
 }
 ```
 
+### Paginating query results
+
 If paginating entities from a TypeORM-connected database, pass the relevant TypeORM repository to the `Paginator.run()` method in your corresponding NestJS service:
 
 ```
@@ -63,8 +71,6 @@ async findAll(paginator: Paginator): Promise<Paginated<TestEntity>> {
 ```
 
 For any generic type `T` (in this case, `TestEntity`), `source` in the above example can be any of TypeORM `Repository<T>`, an array `T[]` or a Promise returning an array `Promise<T[]>`.
-
-### Request format
 
 ## Dependencies/ extensions included
 
