@@ -1,6 +1,12 @@
 import { IsNumber, IsObject } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { OrderBy, OrderByClause, PaginateQueryInterface, Where, WhereClause } from "../types/paginate.types";
+import {
+    OrderBy,
+    OrderByClause,
+    Where,
+    WhereClause,
+    PaginateQuery as PaginateQueryInterface
+} from "aethon-paginate-types";
 
 export class PaginateQuery implements PaginateQueryInterface {
     @IsNumber()

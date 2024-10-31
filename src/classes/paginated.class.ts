@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Links, Meta } from "../types/paginate.types";
+import { Links, Meta, Paginated as PaginatedInterface } from "aethon-paginate-types";
 
-export class Paginated<T> {
+export class Paginated<T> implements PaginatedInterface<T> {
     @ApiProperty({
         name: "meta",
         type: Object,

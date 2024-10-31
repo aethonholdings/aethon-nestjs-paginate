@@ -1,4 +1,4 @@
-import { OrderBy } from "../types/paginate.types";
+import { OrderBy } from "aethon-paginate-types";
 
 export class PaginateConfig {
     limit: number;

@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { OrderBy, OrderByClause, Where, WhereClause } from "../types/paginate.types";
+import { OrderBy, OrderByClause, Where, WhereClause } from "aethon-paginate-types";
 import { PaginateConfig } from "../classes/paginate-config.class";
 import { Paginator } from "../classes/paginator.class";
 import { PaginatorError } from "../classes/paginator-error.class";

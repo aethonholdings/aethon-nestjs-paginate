@@ -12,11 +12,14 @@
         "format": "prettier --write 'src/**/*.ts' 'test/**/*.ts'"
     },
     "keywords": [
-        "NestJS"
+        "paginate", "NestJS"
     ],
     "repository": "github:aethonholdings/aethon-nestjs-paginate",
     "author": "Konstantinos Dimitriou",
     "license": "MIT",
+    "dependencies": {
+        "aethon-paginate-types": "^0.0.1"
+    },
     "peerDependencies": {
         "@nestjs/common": "^10.3.10",
         "@nestjs/swagger": "^7.4.0",

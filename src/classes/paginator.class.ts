@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { WhereClause, OrderByClause, OrderBy, Where } from "../types/paginate.types";
+import { WhereClause, OrderByClause, OrderBy, Where } from "aethon-paginate-types";
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
