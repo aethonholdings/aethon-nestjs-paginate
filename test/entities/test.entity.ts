@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { TestRelatedEntity } from "./test-related.entity";
 
 export type TestType = {
     id: number;
@@ -28,4 +29,8 @@ export class TestEntity implements TestType {
 
     @Column()
     number: number;
+
+    // @ManyToOne(() => TestRelatedEntity, (testRelatedEntity) => testRelatedEntity.entities)
+    // related: TestRelatedEntity;
+    
 }

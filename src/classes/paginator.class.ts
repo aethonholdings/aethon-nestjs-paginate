@@ -3,6 +3,7 @@ import { WhereClause, OrderByClause, OrderBy, Where } from "aethon-paginate-type
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
+import { query } from "express";
 
 type PaginationParameters = {
     totalItems: number;
@@ -44,21 +45,29 @@ export class Paginator {
                         [whereClause[0]]: whereClause[1]
                     };
                 });
-                const queryBuilder = (source as Repository<T>).createQueryBuilder();
-                this._query.orderBy?.forEach((orderBy: OrderByClause) => {
-                    queryBuilder.orderBy(orderBy[0], orderBy[1]);
+                let queryBuilder = (source as Repository<T>).createQueryBuilder();
+                // add relations to the query builder
+                this._config.relationships?.forEach((relationship) => {
+                    queryBuilder = queryBuilder.leftJoinAndSelect(relationship.joinProperty, relationship.entityName);
                 });
-                result = queryBuilder
-                    .where(findOptions.where)
-                    .getCount()
-                    .then((totalItems) => {
-                        paginationParams = this._getPaginationParams(totalItems);
-                        return queryBuilder
-                            .where(findOptions.where)
-                            .skip(paginationParams.startOffset)
-                            .take(paginationParams.itemsPerPage)
-                            .getMany();
-                    });
+                // add order by clauses to the query builder
+                this._query.orderBy?.forEach((orderBy: OrderByClause) => {
+                    queryBuilder = queryBuilder.orderBy(`${orderBy[0]}`, orderBy[1]);
+                });
+                // add where clauses to the query builder,
+                this._query.where ? (queryBuilder = queryBuilder.where(findOptions.where)) : null;
+
+                // get the total items and the paginated data
+                // the total items are needed to calculate the pagination parameters
+                // the result is then passed on as a promise to be packaged
+                result = queryBuilder.getCount().then((totalItems) => {
+                    paginationParams = this._getPaginationParams(totalItems);
+                    return queryBuilder
+                        .where(findOptions.where)
+                        .skip(paginationParams.startOffset)
+                        .take(paginationParams.itemsPerPage)
+                        .getMany();
+                });
             } else {
                 // if the source is not a Repository, check if it is not a promise and set it up as a Promise
                 if (!(source instanceof Promise)) {

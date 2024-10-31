@@ -35,9 +35,25 @@ export class Paginated<T> {
 
 `npm install -s aethon-nestjs-paginate`
 
+### Configuring pagination
+
+```
+export class PaginateConfig {
+    limit: number;                  // default pagination limit
+    limitMax: number;               // maximum limit allowed, to throttle request
+    orderBy?: OrderBy;              // default ordering of the results
+    relationships?: Relationship[]  // array defining the INNER JOINS to be performed
+}
+
+class Relationship {
+    joinProperty: string;           // the TypeORM join property e.g. user.group
+    entityName: string;             // the TypeORM table name to join with e.g. group
+}
+```
+
 ### Intercepting a request with `@GetPaginator`
 
-In the required NestJS controller endpoint, use the `@GetPaginator` decorator to return an instance of the `Paginator` class that will hold the pagination query request parameters and anticipate a dataset to perform the requested query over, as follows:
+In the required NestJS controller endpoint, use the `@GetPaginator(config: PaginateConfig)` decorator to return an instance of the `Paginator` class that will hold the pagination query request parameters and anticipate a dataset to perform the requested query over, as follows:
 
 ```
 async index(
@@ -83,5 +99,6 @@ For any generic type `T` (in this case, `TestEntity`), `source` in the above exa
 
 **To do**
 
+-   JOINs
 -   Where queries for greater than, greater or equal than etc.
 -   OR clauses in Where

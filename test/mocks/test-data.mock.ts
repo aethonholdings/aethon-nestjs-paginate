@@ -1,5 +1,6 @@
 import { PaginateConfig } from "src/classes/paginate-config.class";
 import { TestEntity } from "../entities/test.entity";
+import { TestRelatedEntity } from '../entities/test-related.entity';
 
 export type TestData = { groupIds: number[]; countPerGroup: number; data: TestEntity[] };
 export const testPath: string = "https://foo/test";
@@ -8,10 +9,15 @@ const countPerGroup: number = 10;
 const testPage: number = 2;
 const testLimit: number = 5;
 
+export const testRelatedEntity: TestRelatedEntity = {
+    id: 1,
+    // entities: Array<TestEntity>()
+}
+
 export const getTestEntityData = (): TestData => {
     let id = 0;
     const testData = { groupIds, countPerGroup, data: Array<TestEntity>() } as TestData;
-
+    
     for (const groupId of groupIds) {
         for (let i = 0; i < countPerGroup; i++) {
             testData.data.push({
@@ -20,10 +26,12 @@ export const getTestEntityData = (): TestData => {
                 string: `string-${id}`,
                 boolean: id % 2 === 0,
                 date: new Date(`2021-01-${id}`),
-                number: id
+                number: id,
+                // related: testRelatedEntity
             });
         }
     }
+    testData.data = shuffle(testData.data);
     return testData;
 };
 
@@ -91,5 +99,18 @@ export const testQueriesInvalid: { [key: string]: any } = {
 export const paginationConfig: PaginateConfig = {
     limit: 5,
     limitMax: 10,
-    orderBy: [["id", "ASC"]]
+    orderBy: [["id", "ASC"]],
+    relationships: [{
+        joinProperty: "TestEntity.related",
+        entityName: "TestRelatedEntity"
+    }]
 };
+
+// shuffle an array to test the OrderBy functionality
+export function shuffle(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
