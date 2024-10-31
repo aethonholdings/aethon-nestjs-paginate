@@ -139,7 +139,7 @@ export class Paginator {
         let itemsPerPage: number = this._query.limit || this._config.limit;
         if (this._query.limit < 1) itemsPerPage = this._config.limit;
         if (this._query.limit > this._config.limitMax) itemsPerPage = this._config.limitMax;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
         const currentPage = Math.max(Math.min(this._query.page || 1, totalPages), 1);
         const startOffset = (currentPage - 1) * itemsPerPage;
         const endOffset = Math.min(startOffset + itemsPerPage, totalItems) - 1;

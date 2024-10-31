@@ -1,6 +1,6 @@
 {
     "name": "aethon-nestjs-paginate",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "A simple pagination add-in for Nest.js",
     "main": "index.js",
     "scripts": {

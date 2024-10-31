@@ -167,6 +167,14 @@ describe("Test GetPaginator decorator", () => {
             expect(() => getPaginator(query)).toThrow();
         });
     }
+
+    it("has consistent meta.currentPage and meta.totalPages===1 for empty queries", async () => {
+        const query = testQueries.empty;
+        const paginator: Paginator = getPaginator(query);
+        const paginated = await paginator.run<TestEntity>(new Array<TestEntity>());
+        expect(paginated.meta.currentPage).toBe(1);
+        expect(paginated.meta.totalPages).toBe(1);
+    });
 });
 
 // mock a context, a request query based on the test data, and return a Paginator
