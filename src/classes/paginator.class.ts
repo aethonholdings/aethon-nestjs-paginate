@@ -1,9 +1,8 @@
-import { Repository } from "typeorm";
+import { FindManyOptions, FindOptions, Repository } from "typeorm";
 import { WhereClause, OrderByClause, OrderBy, Where } from "aethon-paginate-types";
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
-import { query } from "express";
 
 type PaginationParameters = {
     totalItems: number;
@@ -34,39 +33,39 @@ export class Paginator {
         // check if this is a Repository instance and set up the right query
         if (source) {
             if (source instanceof Repository) {
-                const findOptions = {
+                const findOptions: FindManyOptions = {
                     where: {},
-                    order: [],
-                    relations: []
+                    order: {},
+                    relations: {}
                 };
+                // add where clauses to the find options
                 this._query.where?.forEach((whereClause: WhereClause) => {
                     findOptions.where = {
                         ...findOptions.where,
                         [whereClause[0]]: whereClause[1]
                     };
                 });
-                let queryBuilder = (source as Repository<T>).createQueryBuilder();
-                // add relations to the query builder
-                this._config.relationships?.forEach((relationship) => {
-                    queryBuilder = queryBuilder.leftJoinAndSelect(relationship.joinProperty, relationship.entityName);
-                });
-                // add order by clauses to the query builder
-                this._query.orderBy?.forEach((orderBy: OrderByClause) => {
-                    queryBuilder = queryBuilder.orderBy(`${orderBy[0]}`, orderBy[1]);
-                });
-                // add where clauses to the query builder,
-                this._query.where ? (queryBuilder = queryBuilder.where(findOptions.where)) : null;
 
+                const countQuery = source.findAndCount(findOptions);
+                
+                // add relations to the find options
+                this._config.relations?.forEach((relationship) => {
+                    findOptions.relations[relationship] = true;
+                });
+
+                // add order by clauses to the find options
+                this._query.orderBy?.forEach((orderBy: OrderByClause) => {
+                    findOptions.order[orderBy[0]] = orderBy[1];
+                })
+                
                 // get the total items and the paginated data
                 // the total items are needed to calculate the pagination parameters
                 // the result is then passed on as a promise to be packaged
-                result = queryBuilder.getCount().then((totalItems) => {
-                    paginationParams = this._getPaginationParams(totalItems);
-                    return queryBuilder
-                        .where(findOptions.where)
-                        .skip(paginationParams.startOffset)
-                        .take(paginationParams.itemsPerPage)
-                        .getMany();
+                result = countQuery.then((totalItems) => {
+                    paginationParams = this._getPaginationParams(totalItems[1]);
+                    findOptions.skip = paginationParams.startOffset;
+                    findOptions.take = paginationParams.itemsPerPage;
+                    return (source as Repository<T>).find(findOptions);
                 });
             } else {
                 // if the source is not a Repository, check if it is not a promise and set it up as a Promise

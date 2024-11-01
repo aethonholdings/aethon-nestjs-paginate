@@ -4,10 +4,7 @@ export class PaginateConfig {
     limit: number;
     limitMax: number;
     orderBy?: OrderBy;
-    relationships?: Relationship[];
+    relations?: RelationshipParam[];
 }
 
-export class Relationship {
-    joinProperty: string;
-    entityName: string;
-}
+export type RelationshipParam = string;

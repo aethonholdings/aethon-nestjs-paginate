@@ -99,12 +99,7 @@ export const paginationConfig: PaginateConfig = {
     limit: 5,
     limitMax: 10,
     orderBy: [["id", "ASC"]],
-    relationships: [
-        {
-            joinProperty: "TestEntity.related",
-            entityName: "TestRelatedEntity"
-        }
-    ]
+    relations: ["related"]
 };
 
 // shuffle an array to test the OrderBy functionality
