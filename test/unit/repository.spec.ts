@@ -44,6 +44,14 @@ describe("Repository tests", () => {
         });
     }
 
+    it("performs JOINs correctly", async () => {
+        const paginator: Paginator = getPaginator("findAll");
+        const paginated = await paginator.run<TestEntity>(repository);
+        for (const entity of paginated.data) {
+            expect(entity.related).toEqual(testRelatedEntity);
+        }
+    });
+
     afterAll(async () => {
         await dataSource.destroy();
     });
