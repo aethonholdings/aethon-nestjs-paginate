@@ -42,10 +42,10 @@ export class PaginateConfig {
     limit: number;                  // default pagination limit
     limitMax: number;               // maximum limit allowed, to throttle request
     orderBy?: OrderBy;              // default ordering of the results
-    relationships?: Relationship[]  // array defining the INNER JOINS to be performed
+    relations?: RelationshipParam[] // array defining the INNER JOINS to be performed
 }
 
-class Relationship {
+type RelationshipParam {
     joinProperty: string;           // the TypeORM join property e.g. user.group
     entityName: string;             // the TypeORM table name to join with e.g. group
 }
@@ -64,10 +64,10 @@ async index(
 
 ### Request format
 
-The inbound request must conform to the `PaginateQueryInterface` interface.
+The inbound request must conform to the `PaginateQuery` interface in `aethon-paginate-types`.
 
 ```
-export interface PaginateQueryInterface {
+export interface PaginateQuery {
     page?: number;
     limit?: number;
     orderBy?: OrderBy;      // [[string, "ASC" | "DESC"]]
