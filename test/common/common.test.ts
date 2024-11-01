@@ -1,5 +1,4 @@
 import { ExecutionContext } from "@nestjs/common";
-import { after } from "node:test";
 import { Paginator } from "src/classes/paginator.class";
 import { getPaginatorClass } from "src/decorators/get-paginator.decorator";
 import { PaginateConfig } from "src/index";
@@ -19,7 +18,7 @@ export const commonTests = (
     });
 
     afterEach(async () => {
-        if(teardown) await teardown();
+        if (teardown) await teardown();
     });
 
     it(`returns paginated data:findAll`, async () => {

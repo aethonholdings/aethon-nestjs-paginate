@@ -32,5 +32,4 @@ export class TestEntity implements TestType {
 
     @ManyToOne(() => TestRelatedEntity, (testRelatedEntity) => testRelatedEntity.entities)
     related: TestRelatedEntity;
-    
 }

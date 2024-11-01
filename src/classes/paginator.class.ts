@@ -1,4 +1,4 @@
-import { FindManyOptions, FindOptions, Repository } from "typeorm";
+import { FindManyOptions, Repository } from "typeorm";
 import { WhereClause, OrderByClause, OrderBy, Where } from "aethon-paginate-types";
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
@@ -47,7 +47,7 @@ export class Paginator {
                 });
 
                 const countQuery = source.findAndCount(findOptions);
-                
+
                 // add relations to the find options
                 this._config.relations?.forEach((relationship) => {
                     findOptions.relations[relationship] = true;
@@ -56,8 +56,8 @@ export class Paginator {
                 // add order by clauses to the find options
                 this._query.orderBy?.forEach((orderBy: OrderByClause) => {
                     findOptions.order[orderBy[0]] = orderBy[1];
-                })
-                
+                });
+
                 // get the total items and the paginated data
                 // the total items are needed to calculate the pagination parameters
                 // the result is then passed on as a promise to be packaged

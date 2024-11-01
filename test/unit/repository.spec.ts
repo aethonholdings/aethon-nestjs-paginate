@@ -1,5 +1,11 @@
 import { PaginateConfig, Paginator } from "src/index";
-import { getTestEntityData, paginationConfig, TestData, testQueries, testRelatedEntity } from "test/mocks/test-data.mock";
+import {
+    getTestEntityData,
+    paginationConfig,
+    TestData,
+    testQueries,
+    testRelatedEntity
+} from "test/mocks/test-data.mock";
 import { commonTests, getPaginator } from "../common/common.test";
 import { DataSource, Repository } from "typeorm";
 import { TestEntity } from "test/entities/test.entity";
@@ -15,7 +21,6 @@ describe("Repository tests", () => {
     let repository: Repository<TestEntity>;
 
     const init = async () => {
-        let repo: Repository<TestEntity>;
         const module: TestingModule = await Test.createTestingModule({
             imports: [TypeOrmModule.forRoot(getDbConfig()), TypeOrmModule.forFeature([TestEntity, TestRelatedEntity])]
         }).compile();
@@ -26,14 +31,14 @@ describe("Repository tests", () => {
             entity.related = related;
             return entity;
         });
-        repo = dataSource.getRepository(TestEntity);
+        const repo: Repository<TestEntity> = dataSource.getRepository(TestEntity);
         await repo.save(testData.data);
         return repo;
     };
 
     describe("Common tests, Repository source", () => commonTests(testData, config, repository, init));
 
-    beforeEach(async () => repository = await init());
+    beforeEach(async () => (repository = await init()));
 
     for (const query in testQueries) {
         it(`produces the same output for repository as array sources: ${query}`, async () => {
