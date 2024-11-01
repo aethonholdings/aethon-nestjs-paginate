@@ -6,7 +6,7 @@ export const getDbConfig = (): TypeOrmModuleOptions => {
     return {
         type: "sqlite",
         database: ":memory:",
-        entities: [TestEntity],
+        entities: [TestEntity, TestRelatedEntity],
         synchronize: true,
         dropSchema: true,
         logging: false,

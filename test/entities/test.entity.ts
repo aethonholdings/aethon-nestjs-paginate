@@ -30,7 +30,7 @@ export class TestEntity implements TestType {
     @Column()
     number: number;
 
-    // @ManyToOne(() => TestRelatedEntity, (testRelatedEntity) => testRelatedEntity.entities)
-    // related: TestRelatedEntity;
+    @ManyToOne(() => TestRelatedEntity, (testRelatedEntity) => testRelatedEntity.entities)
+    related: TestRelatedEntity;
     
 }

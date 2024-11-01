@@ -1,6 +1,6 @@
 import { PaginateConfig } from "src/classes/paginate-config.class";
 import { TestEntity } from "../entities/test.entity";
-import { TestRelatedEntity } from '../entities/test-related.entity';
+import { TestRelatedEntity } from "../entities/test-related.entity";
 
 export type TestData = { groupIds: number[]; countPerGroup: number; data: TestEntity[] };
 export const testPath: string = "https://foo/test";
@@ -9,15 +9,14 @@ const countPerGroup: number = 10;
 const testPage: number = 2;
 const testLimit: number = 5;
 
-export const testRelatedEntity: TestRelatedEntity = {
-    id: 1,
-    // entities: Array<TestEntity>()
-}
+export const testRelatedEntity = {
+    id: 1
+};
 
 export const getTestEntityData = (): TestData => {
     let id = 0;
     const testData = { groupIds, countPerGroup, data: Array<TestEntity>() } as TestData;
-    
+
     for (const groupId of groupIds) {
         for (let i = 0; i < countPerGroup; i++) {
             testData.data.push({
@@ -27,7 +26,7 @@ export const getTestEntityData = (): TestData => {
                 boolean: id % 2 === 0,
                 date: new Date(`2021-01-${id}`),
                 number: id,
-                // related: testRelatedEntity
+                related: testRelatedEntity as TestRelatedEntity // this cast ensures true deep equality between the Array test data and the TypeORM entity
             });
         }
     }
@@ -100,10 +99,12 @@ export const paginationConfig: PaginateConfig = {
     limit: 5,
     limitMax: 10,
     orderBy: [["id", "ASC"]],
-    relationships: [{
-        joinProperty: "TestEntity.related",
-        entityName: "TestRelatedEntity"
-    }]
+    relationships: [
+        {
+            joinProperty: "TestEntity.related",
+            entityName: "TestRelatedEntity"
+        }
+    ]
 };
 
 // shuffle an array to test the OrderBy functionality

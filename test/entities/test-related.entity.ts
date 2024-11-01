@@ -6,6 +6,6 @@ export class TestRelatedEntity {
     @PrimaryColumn()
     id: number;
 
-    // @OneToMany(() => TestEntity, (testEntity) => testEntity.related)
-    // entities: TestEntity[];
+    @OneToMany(() => TestEntity, (testEntity) => testEntity.related)
+    entities: TestEntity[];
 }
