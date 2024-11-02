@@ -8,26 +8,7 @@ Also allows pagination of arbitrary data held in an array or any `Promise` retur
 
 ## Pagination schema
 
-```
-export class Paginated<T> {
-    meta: {
-        itemsPerPage: number;
-        totalItems: number;
-        currentPage: number;
-        totalPages: number;
-        orderBy?: OrderBy;      // [[string, "ASC" | "DESC"]]
-        where?: Where;          //  [[string, string]], with the first string being a field name and the second one the value it should be equal to
-    };
-    data: T[];
-    links: {
-        first?: string;
-        previous?: string;
-        current: string;
-        next?: string;
-        last?: string;
-    };
-}
-```
+The pagination schema is described in the dependency package [`aethon-paginate-types`](https://www.npmjs.com/package/aethon-paginate-types).
 
 ## Example usage
 
@@ -64,7 +45,7 @@ async index(
 
 ### Request format
 
-The inbound request must conform to the `PaginateQuery` interface in `aethon-paginate-types`.
+The inbound request must conform to the `PaginateQuery` interface in [`aethon-paginate-types`](https://www.npmjs.com/package/aethon-paginate-types).
 
 ```
 export interface PaginateQuery {
@@ -96,9 +77,9 @@ For any generic type `T` (in this case, `TestEntity`), `source` in the above exa
 
 -   Where queries, equality only (e.g. WHERE groupId=2) with multiple AND clauses
 -   Nested OrderBy queries
+-   JOINs
 
 **To do**
 
--   JOINs
 -   Where queries for greater than, greater or equal than etc.
 -   OR clauses in Where

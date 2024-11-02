@@ -1,26 +1,24 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Links, Meta, Paginated as PaginatedInterface } from "aethon-paginate-types";
+import { Paginated as PaginatedInterface } from "aethon-paginate-types";
+import { Meta } from "./meta.class";
+import { Links } from "./links.class";
+import { ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 export class Paginated<T> implements PaginatedInterface<T> {
+    @ValidateNested({ each: true })
+    @Type(() => Meta)
     @ApiProperty({
         name: "meta",
-        type: Object,
-        description:
-            "The metadata describing the position and size of the paginated data versus the full pagination set",
-        example: {
-            itemsPerPage: 10,
-            totalItems: 100,
-            currentPage: 1,
-            totalPages: 10,
-            orderBy: [{ name: "ASC" }],
-            where: [{ groupId: "12" }]
-        }
+        type: Meta
     })
     meta: Meta;
+
+    // this needs fixing
     @ApiProperty({
         name: "data",
         type: Array,
-        description: "The paginated data set",
+        description: "The paginated data set of generic type T",
         example: [
             {
                 id: 1,
@@ -31,17 +29,15 @@ export class Paginated<T> implements PaginatedInterface<T> {
     })
     data: T[];
 
+    @ValidateNested({ each: true })
+    @Type(() => Links)
     @ApiProperty({
         name: "links",
-        type: Object,
+        type: Links,
         description: "The links to the first, previous, current, next, and last pages",
-        example: {
-            first: "http://localhost:3000/api/v1/users?page=1",
-            previous: "http://localhost:3000/api/v1/users?page=1",
-            current: "http://localhost:3000/api/v1/users?page=2",
-            next: "http://localhost:3000/api/v1/users?page=3",
-            last: "http://localhost:3000/api/v1/users?page=10"
-        }
+        required: true
     })
     links: Links;
 }
+
+
