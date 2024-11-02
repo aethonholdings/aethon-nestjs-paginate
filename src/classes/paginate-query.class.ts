@@ -27,7 +27,8 @@ export class PaginateQuery implements PaginateQueryInterface {
         name: "limit",
         required: false,
         type: Number,
-        description: "The number of items to retrieve per page.  Will be capped at a server-set maximum value if higher",
+        description:
+            "The number of items to retrieve per page.  Will be capped at a server-set maximum value if higher",
         example: 10
     })
     limit?: number;
@@ -39,9 +40,7 @@ export class PaginateQuery implements PaginateQueryInterface {
         required: false,
         isArray: true,
         type: Array<OrderByClause>,
-        example: [
-            ["id", "ASC"]
-        ],
+        example: [["id", "ASC"]],
         description:
             "The order by clause to sort the results by; either 'ASC' or 'DESC'. If not provided, no sort is set."
     })
@@ -54,9 +53,7 @@ export class PaginateQuery implements PaginateQueryInterface {
         required: false,
         isArray: true,
         type: Array<WhereClause>,
-        example: [
-            ["id", "12"],
-        ],
+        example: [["id", "12"]],
         description:
             "The where clause to filter the results by.  For each field listed, an AND operation is performed for equality against the values provided.  If no where clause is provided, all results are fetched."
     })

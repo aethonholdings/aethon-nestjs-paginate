@@ -39,5 +39,3 @@ export class Paginated<T> implements PaginatedInterface<T> {
     })
     links: Links;
 }
-
-

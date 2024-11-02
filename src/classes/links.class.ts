@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Links as LinksInterface } from 'aethon-paginate-types';
-import { IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { Links as LinksInterface } from "aethon-paginate-types";
+import { IsOptional, IsString } from "class-validator";
 
 export class Links implements LinksInterface {
     @IsString()
