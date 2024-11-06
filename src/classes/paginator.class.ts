@@ -46,25 +46,22 @@ export class Paginator {
                     };
                 });
 
-                const countQuery = source.findAndCount(findOptions);
-
-                // add relations to the find options
-                this._config.relations?.forEach((relationship) => {
-                    findOptions.relations[relationship] = true;
-                });
-
-                // add order by clauses to the find options
-                this._query.orderBy?.forEach((orderBy: OrderByClause) => {
-                    findOptions.order[orderBy[0]] = orderBy[1];
-                });
-
                 // get the total items and the paginated data
                 // the total items are needed to calculate the pagination parameters
                 // the result is then passed on as a promise to be packaged
-                result = countQuery.then((totalItems) => {
+                result = source.findAndCount(findOptions).then((totalItems) => {
+                    // add relations to the find options
+                    this._config.relations?.forEach((relationship) => {
+                        findOptions.relations[relationship] = true;
+                    });
+                    // add order by clauses to the find options
+                    this._query.orderBy?.forEach((orderBy: OrderByClause) => {
+                        findOptions.order[orderBy[0]] = orderBy[1];
+                    });
                     paginationParams = this._getPaginationParams(totalItems[1]);
                     findOptions.skip = paginationParams.startOffset;
                     findOptions.take = paginationParams.itemsPerPage;
+                    console.log(findOptions);
                     return (source as Repository<T>).find(findOptions);
                 });
             } else {
@@ -100,12 +97,27 @@ export class Paginator {
         return this._query;
     }
 
+    setQuery(query: PaginateQuery): this {
+        this._query = query;
+        return this;
+    }
+
     getPath(): string {
         return this._path;
     }
 
+    setPath(): this {
+        this._path = this._path;
+        return this;
+    }
+
     getConfig(): PaginateConfig {
         return this._config;
+    }
+
+    setConfig(config: PaginateConfig): this {
+        this._config = config;
+        return this;
     }
 
     private _package<T>(data: T[], paginationParams: PaginationParameters): Paginated<T> {
