@@ -1,19 +1,10 @@
 import { FindManyOptions, Repository } from "typeorm";
-import { WhereClause, OrderByClause, OrderBy, Where } from "aethon-paginate-types";
+import { WhereClause, OrderByClause, OrderBy, Where, Comparator } from "aethon-paginate-types";
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
-
-type PaginationParameters = {
-    totalItems: number;
-    currentPage: number;
-    itemsPerPage: number;
-    totalPages: number;
-    startOffset: number;
-    endOffset: number;
-    orderBy: OrderBy;
-    where: Where;
-};
+import { PaginatorError } from "./paginator-error.class";
+import { PaginationParameters } from "../types/paginate.types";
 
 export class Paginator {
     config: PaginateConfig;
@@ -40,9 +31,11 @@ export class Paginator {
                 };
                 // add where clauses to the find options
                 this.query.where?.forEach((whereClause: WhereClause) => {
+                    // only support EQUAL for now
+                    if(whereClause[1] !== Comparator.EQUAL) throw new PaginatorError("Only Comparator.EQUAL is currently supported");
                     findOptions.where = {
                         ...findOptions.where,
-                        [whereClause[0]]: whereClause[1]
+                        [whereClause[0]]: whereClause[2]
                     };
                 });
 
@@ -93,38 +86,7 @@ export class Paginator {
     }
 
     private _package<T>(data: T[], paginationParams: PaginationParameters): Paginated<T> {
-        let append: string = "";
-        append =
-            append +
-            (this.query.orderBy && this.query.orderBy.length
-                ? `&orderBy=${JSON.stringify(this.query.orderBy)}`
-                : "");
-        append =
-            append +
-            (this.query.where && this.query.where.length ? `&where=${JSON.stringify(this.query.where)}` : "");
-        const response: Paginated<T> = {
-            meta: {
-                itemsPerPage: paginationParams.itemsPerPage,
-                totalItems: paginationParams.totalItems,
-                currentPage: paginationParams.currentPage,
-                totalPages: paginationParams.totalPages
-            },
-            data: data.map((obj) => obj as T),
-            links: {
-                first: `${this.path}?page=1&limit=${paginationParams.itemsPerPage}${append}`,
-                current: `${this.path}?page=${paginationParams.currentPage}&limit=${paginationParams.itemsPerPage}${append}`,
-                last: `${this.path}?page=${paginationParams.totalPages}&limit=${paginationParams.itemsPerPage}${append}`
-            }
-        };
-        if (this.query.orderBy) response.meta.orderBy = this.query.orderBy;
-        if (this.query.where) response.meta.where = this.query.where;
-        paginationParams.currentPage > 1
-            ? (response.links.previous = `${this.path}?page=${paginationParams.currentPage - 1}&limit=${paginationParams.itemsPerPage}${append}`)
-            : null;
-        paginationParams.currentPage < paginationParams.totalPages
-            ? (response.links.next = `${this.path}?page=${paginationParams.currentPage + 1}&limit=${paginationParams.itemsPerPage}${append}`)
-            : null;
-        return response;
+        return new Paginated<T>(data, paginationParams);
     }
 
     private _getPaginationParams(totalItems: number): PaginationParameters {
@@ -144,7 +106,9 @@ export class Paginator {
             orderBy: this.query.orderBy || this.config.orderBy,
             where: this.query.where,
             startOffset: startOffset,
-            endOffset: endOffset
+            endOffset: endOffset,
+            query: this.query,
+            path: this.path
         };
     }
 
@@ -171,7 +135,9 @@ export class Paginator {
     private _where<T>(data: T[]): T[] {
         return data.filter((item) => {
             for (const whereClause of this.query.where) {
-                if (item[whereClause[0]] != whereClause[1]) return false;
+                // only support EQUAL for now
+                if(whereClause[1] !== Comparator.EQUAL)  new PaginatorError("Only Comparator.EQUAL is currently supported");
+                if (item[whereClause[0]] != whereClause[2]) return false;
             }
             return true;
         });
