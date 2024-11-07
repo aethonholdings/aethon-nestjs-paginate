@@ -15,10 +15,9 @@ export class Paginated<T> implements PaginatedInterface<T> {
     })
     meta: Meta;
 
-    // this needs fixing
     @ApiProperty({
         name: "data",
-        type: Array,
+        type: Array<T>,
         description: "The paginated data set of generic type T",
         example: [
             {
