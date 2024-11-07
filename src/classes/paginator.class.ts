@@ -1,5 +1,5 @@
 import { FindManyOptions, Repository } from "typeorm";
-import { WhereClause, OrderByClause, OrderBy, Where, Comparator } from "aethon-paginate-types";
+import { WhereClause, OrderByClause, Comparator } from "aethon-paginate-types";
 import { PaginateConfig } from "./paginate-config.class";
 import { Paginated } from "../classes/paginated.class";
 import { PaginateQuery } from "./paginate-query.class";
@@ -32,7 +32,8 @@ export class Paginator {
                 // add where clauses to the find options
                 this.query.where?.forEach((whereClause: WhereClause) => {
                     // only support EQUAL for now
-                    if(whereClause[1] !== Comparator.EQUAL) throw new PaginatorError("Only Comparator.EQUAL is currently supported");
+                    if (whereClause[1] !== Comparator.EQUAL)
+                        throw new PaginatorError("Only Comparator.EQUAL is currently supported");
                     findOptions.where = {
                         ...findOptions.where,
                         [whereClause[0]]: whereClause[2]
@@ -136,7 +137,8 @@ export class Paginator {
         return data.filter((item) => {
             for (const whereClause of this.query.where) {
                 // only support EQUAL for now
-                if(whereClause[1] !== Comparator.EQUAL)  new PaginatorError("Only Comparator.EQUAL is currently supported");
+                if (whereClause[1] !== Comparator.EQUAL)
+                    new PaginatorError("Only Comparator.EQUAL is currently supported");
                 if (item[whereClause[0]] != whereClause[2]) return false;
             }
             return true;

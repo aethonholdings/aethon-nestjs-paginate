@@ -7,4 +7,3 @@ export { Meta } from "./classes/meta.class";
 export { Links } from "./classes/links.class";
 export { PaginationParameters } from "./types/paginate.types";
 export { OrderBy, OrderByClause, Where, WhereClause, Comparator } from "aethon-paginate-types";
-
