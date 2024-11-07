@@ -53,7 +53,7 @@ export class PaginateQuery implements PaginateQueryInterface {
         required: false,
         isArray: true,
         type: Array<WhereClause>,
-        example: [["id", "12"]],
+        example: [["id", "=", "12"]],
         description:
             "The where clause to filter the results by.  For each field listed, an AND operation is performed for equality against the values provided.  If no where clause is provided, all results are fetched."
     })

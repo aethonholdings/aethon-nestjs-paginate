@@ -52,7 +52,7 @@ export interface PaginateQuery {
     page?: number;
     limit?: number;
     orderBy?: OrderBy;      // [[string, "ASC" | "DESC"]]
-    where?: Where;          //  [[string, string]], with the first string being a field name and the second one the value it should be equal to
+    where?: Where;          // [[string, string, string]], with the first string is a field name, the second a comparison operator and the third one the value it should be equal to
 }
 ```
 

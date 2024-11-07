@@ -1,6 +1,7 @@
 import { PaginateConfig } from "src/classes/paginate-config.class";
 import { TestEntity } from "../entities/test.entity";
 import { TestRelatedEntity } from "../entities/test-related.entity";
+import { Comparator } from "aethon-paginate-types";
 
 export type TestData = { groupIds: number[]; countPerGroup: number; data: TestEntity[] };
 export const testPath: string = "https://foo/test";
@@ -42,7 +43,7 @@ export const testQueries: { [key: string]: any } = {
     findAllWhere: {
         page: testPage,
         limit: testLimit,
-        where: [["groupId", "2"]]
+        where: [["groupId", Comparator.EQUAL, "2"]]
     },
     findAllOrderByStringDESC: {
         page: testPage,
@@ -52,7 +53,7 @@ export const testQueries: { [key: string]: any } = {
     findAllWhereOrderByNumberDESC: {
         page: testPage,
         limit: testLimit,
-        where: [["groupId", "2"]],
+        where: [["groupId", Comparator.EQUAL, "2"]],
         orderBy: [["number", "DESC"]]
     },
     findAllWhereOrderByGroupASCAndIdDESC: {

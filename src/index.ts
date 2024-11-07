@@ -5,4 +5,5 @@ export { PaginateQuery } from "./classes/paginate-query.class";
 export { PaginateConfig } from "./classes/paginate-config.class";
 export { Meta } from "./classes/meta.class";
 export { Links } from "./classes/links.class";
-export { OrderBy, OrderByClause, Where, WhereClause } from "aethon-paginate-types";
+export { PaginationParameters } from "./types/paginate.types";
+export { OrderBy, OrderByClause, Where, WhereClause, Comparator } from "aethon-paginate-types";

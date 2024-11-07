@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { OrderBy, OrderByClause, Where, WhereClause } from "aethon-paginate-types";
+import { OrderBy, OrderByClause, Where, WhereClause, Comparator } from "aethon-paginate-types";
 import { PaginateConfig } from "../classes/paginate-config.class";
 import { Paginator } from "../classes/paginator.class";
 import { PaginatorError } from "../classes/paginator-error.class";
@@ -58,7 +58,8 @@ function validateWhere(where: string[][]): Where {
 }
 
 function validateWhereClause(whereClause: string[]): WhereClause {
-    if (whereClause.length !== 2)
-        throw new PaginatorError("Invalid WhereClause; should have exactly 2 string elements");
+    if (whereClause.length !== 3)
+        throw new PaginatorError("Invalid WhereClause; should have exactly 3 string elements");
+    if (whereClause[1] !== Comparator.EQUAL) throw new PaginatorError("Only Comparator.EQUAL is currently supported");
     return whereClause as WhereClause;
 }
